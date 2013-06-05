@@ -66,7 +66,7 @@ module Smooch
        if choices and Smooch.ab_static?
          val = choices.first unless val
        end
-       
+
        # pick a random one
        val = get_ab_random_choice(choices) unless val
 
@@ -105,7 +105,7 @@ module Smooch
      # TODO db support
      def get_ab_database(name)
        # get_identity / key(name)
-       nil 
+       nil
      end
      def set_ab_database(name, val)
        # get_identity / key(name)
@@ -142,7 +142,7 @@ module Smooch
          end
          out += "]);\n"
        end
-       out = out.html_safe if out.respond_to?(:html_safe) 
+       out = out.html_safe if out.respond_to?(:html_safe)
        out
      end
      def push_set(hash)
@@ -150,45 +150,48 @@ module Smooch
        hash.each do |key, value|
           out += "_kmq.push(['set', {'#{js(key)}' : '#{js(value)}'}]);\n"
        end
-       out = out.html_safe if out.respond_to?(:html_safe) 
+       out = out.html_safe if out.respond_to?(:html_safe)
        out
      end
-     
+
      def api_key
        Smooch::API_KEY.blank? ? nil : Smooch::API_KEY
      end
-     
+
      def script(send=true)
        clear_flash
 
-       out = <<-JAVASCRIPT
-         <script type="text/javascript">
-           var _kmq = _kmq || [];
-           function _kms(u) {
-             setTimeout(function() {
-               var s = document.createElement('script');
-               var f = document.getElementsByTagName('script')[0];
-               s.type = 'text/javascript';
-               s.async = true;
-               s.src = u;
-               f.parentNode.insertBefore(s, f);
-             }, 1);
-           }
-       JAVASCRIPT
-       if send and api_key.present?
-         out += "_kms('//i.kissmetrics.com/i.js');\n"
-         out += "_kms('//doug1izaerwt3.cloudfront.net/#{api_key}.1.js');\n"
-       end
+       # out = <<-JAVASCRIPT
+         # <script type="text/javascript">
+           # var _kmq = _kmq || [];
+           # function _kms(u) {
+             # setTimeout(function() {
+               # var s = document.createElement('script');
+               # var f = document.getElementsByTagName('script')[0];
+               # s.type = 'text/javascript';
+               # s.async = true;
+               # s.src = u;
+               # f.parentNode.insertBefore(s, f);
+             # }, 1);
+           # }
+       # JAVASCRIPT
+       # if send and api_key.present?
+         # out += "_kms('//i.kissmetrics.com/i.js');\n"
+         # out += "_kms('//doug1izaerwt3.cloudfront.net/#{api_key}.1.js');\n"
+       # end
 
        identity = get_kiss_identity
-       out += "_kmq.push(['identify', '#{js(identity)}']);\n" if identity   
+       out = <<-JS
+          <script type='text'/javascript'>
+       JS
+       out = "_kmq.push(function(){_kmq.push(['identify', '#{js(identity)}'])});\n" if identity
 
        out += push_record(@records)
        out += push_set(@sets)
        out += push_set(@choices)
 
        out += "</script>\n"
-       out = out.html_safe if out.respond_to?(:html_safe)  
+       out = out.html_safe if out.respond_to?(:html_safe)
        out
      end
 
@@ -200,17 +203,17 @@ module Smooch
      def has_set?(property)
        !@sets[property.to_s].nil?
      end
-     
+
      def cookies
        return {} unless controller
        controller.send(:cookies)
      end
-     
+
      def flash
        return {} unless controller
        controller.send(:flash)
      end
-     
+
      def params
        return {} unless controller
        controller.send(:params)

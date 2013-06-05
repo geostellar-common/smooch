@@ -11,11 +11,11 @@ module Smooch
 end
 
 begin
-  binding.pry
-  config = YAML.load_file("#{Rails.root}/config/kissmetrics.yml")
+  puts "Rails.env == #{Rails.env}"
+  puts config = YAML.load_file("config/kissmetrics.yml")
   Smooch::API_KEY = config[Rails.env]['apikey'] if config[Rails.env]
-rescue
-  puts "Error opening KISSmetrics configuration file."
+# rescue
+  # puts "Error opening KISSmetrics configuration file."
 end
 
 require 'smooch/base'

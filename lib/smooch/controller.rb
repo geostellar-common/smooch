@@ -2,7 +2,7 @@ require "digest/md5"
 
 module Smooch
   COOKIE_ID = "ab_id"
-  
+
   module Controller
     def kiss(symbol = nil, &block)
       if block
@@ -11,7 +11,7 @@ module Smooch
         define_method :smooch_calculate_identity do
           return @smooch_identity if @smooch_identity
           if symbol && object = send(symbol)
-            @smooch_identity = object.id
+            @smooch_identity = object.email
           elsif response # everyday use
             @smooch_generated = true
             @smooch_identity = cookies[COOKIE_ID] || ActiveSupport::SecureRandom.hex(16)
@@ -22,7 +22,7 @@ module Smooch
           end
         end
       end
-      
+
       define_method(:smooch_identity) do
         smooch_calculate_identity
       end
@@ -31,7 +31,7 @@ module Smooch
         return "null" if @smooch_generated
         val
       end
-      
+
       define_method(:smooch_object) do
         @smooch_object ||= Smooch::Base.new(self)
       end
